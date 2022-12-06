@@ -1,0 +1,137 @@
+create database manjilemployee_emp_database;
+
+use manjilemployee_emp_database;
+
+create table DEPT(
+DEPTNO int,
+DNAME varchar (50),
+DLOC varchar (50),
+primary key(DEPTNO)
+);
+
+create table project(
+p_no int,
+p_name varchar(50),
+p_loc varchar(50),
+PRIMARY KEY (p_no)
+);
+
+create table employee(
+emp_no int,
+emp_name varchar(50),
+mgr_no int,
+hiredate date,
+sal real,
+DEPTNO int,
+primary key(emp_no),
+foreign key(DEPTNO) references DEPT(DEPTNO)
+on update cascade on delete cascade
+);
+
+create table incentives(
+
+emp_no int,
+incentive_date date,
+incentive_amt real,
+primary key(incentive_date),
+foreign key(emp_no) references employee(emp_no)
+on update cascade on delete cascade
+);
+
+create table assigned(
+emp_no int,
+p_no int,
+job_role varchar(50),
+
+foreign key(emp_no) references employee(emp_no)
+on update cascade on delete cascade,
+foreign key(p_no) references project(p_no)
+on update cascade on delete cascade
+);
+
+select *from employee;
+
+select *from assigned;
+
+select *from incentives;
+
+select *from project;
+
+select *from DEPT;
+
+insert into DEPT values(111,'IT','chandigarh');
+insert into DEPT values(222,'sales','bangalore');
+insert into DEPT values(333,'HR','delhi');
+insert into DEPT values(444,'construction','bangalore');
+insert into DEPT values(555,'logistics','mumbai');
+insert into DEPT values(666,'accounts','ahemdabad');
+insert into DEPT values(777,'media_design','hyderabad');
+
+insert into project values(10,'white_elephant','bangalore');
+insert into project values (20,'white_house','delhi');
+insert into project values (30,'p_one','mumbai');
+insert into project values(40,'p_ten','ahemdabad');
+insert into project values (50,'omega','bangalore');
+insert into project values (60,'satan','hyderabad');
+insert into project values (70,'aqua','chandigarh');
+
+insert into employee values (101,'Ronaldo',100,'2003-05-05',10000,111);
+insert into employee values (102,'Rashford',200,'2004-06-06',15000,222);
+insert into employee values (103,'Kane',300,'2006-07-07',20000,444);
+insert into employee values (104,'Faraz',400,'2007-08-08',25000,333);
+insert into employee values(105,'Ajay',500,'2007-09-09',30000,111);
+insert into employee values(106,'Altaf',600,'2008-10-10',35000,111);
+insert into employee values(107,'Lalit',700,'2009-11-11',40000,555);
+insert into employee values(108,'Aman',800,'2010-12-12',45000,222);
+insert into employee values(109,'Bhuvan',900,'2011-01-01',50000,333);
+insert into employee values(110,'Tammy',1000,'2012-02-02',55000,444);
+
+insert into incentives values(101,'2021-05-20',1000);
+insert into incentives values(103,'2022-04-21',1500);
+insert into incentives values(105,'2021-09-19',2000);
+insert into incentives values(107,'2022-06-18',2500);
+insert into incentives values(109,'2021-04-17',3000);
+insert into incentives values(110,'2022-10-16',3500);
+
+insert into assigned values(101,10,'sde');
+insert into assigned values(102,20,'salesperson');
+insert into assigned values(103,30,'siteengineer');
+insert into assigned values(104,40,'hrmanager');
+insert into assigned values(105,50,'webdeveloper');
+insert into assigned values(106,50,'sde');
+insert into assigned values(107,60,'stockmanager');
+insert into assigned values(108,60,'salesperson');
+insert into assigned values(109,70,'assthrmanager');
+insert into assigned values(110,70,'asst_siteengineer');
+
+select *from employee;
+select *from assigned;
+select *from incentives;
+select *from project;
+select *from DEPT;
+
+select emp_no from assigned,project where assigned.p_no=project.p_no and project.p_loc in('mysore','bangalore','hyderabad');
+
+
+
+select emp_no from employee where emp_no not in(select incentives.emp_no
+from employee cross join incentives
+on employee.emp_no=incentives.emp_no);
+
+
+select e.emp_name,e.emp_no,d.DNAME,a.job_role,d.DLOC,p.p_loc
+from employee e, DEPT d, assigned a, project p
+where d.DEPTNO=e.DEPTNO
+and e.emp_no=a.emp_no
+and a.p_no=p.p_no
+and p.p_loc=d.DLOC;
+
+select e.emp_name,d.DNAME,a.job_role
+from employee e,DEPT d,assigned a
+where e.emp_no in (select emp_no
+from incentives
+where incentive_amt=
+(select max(incentive_amt)
+from incentives
+where incentive_date between'2021-01-01' and '2021-12-31'))
+and d.DEPTNO=e.DEPTNO and a.emp_no=e.emp_no;
